@@ -1,3 +1,17 @@
+dpkg (1.18.4ubuntu1.3) xenial; urgency=medium
+
+  * Use ohshit() instead of internerr() for unhandled dpkg-split exit
+    codes. (i.e. do not abort). Closes: #812679, LP: #1601998
+
+ -- Brian Murray <brian@ubuntu.com>  Fri, 20 Oct 2017 16:14:06 -0700
+
+dpkg (1.18.4ubuntu1.2) xenial; urgency=medium
+
+  * Cherry-pick patch from git to limit preallocation to files over
+    16KiB, fixing installation performance regression (LP: #1663749)
+
+ -- Adam Conrad <adconrad@ubuntu.com>  Mon, 10 Apr 2017 04:08:19 -0600
+
 dpkg (1.18.4ubuntu1.1) xenial; urgency=medium
 
     * Add Breaks on ufw (<< 0.35-0ubuntu2~) for trigger loops (LP: #1571174)
