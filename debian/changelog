@@ -1,3 +1,11 @@
+dpkg (1.18.4ubuntu1.4) xenial; urgency=medium
+
+  * Cherry-pick d01212f2d7e59fc713c66b5d60421ac2296c1463 from 1.18.5:
+    - Allow detached upstream orig tarball signatures when extracting
+      version 1.0 non-native source packages (LP: #1751114)
+
+ -- Adam Conrad <adconrad@ubuntu.com>  Wed, 14 Mar 2018 13:17:08 -0600
+
 dpkg (1.18.4ubuntu1.3) xenial; urgency=medium
 
   * Use ohshit() instead of internerr() for unhandled dpkg-split exit
