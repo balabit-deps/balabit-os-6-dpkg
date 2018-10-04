@@ -817,6 +817,10 @@ The program \fBdpkg\fP will execute when starting a new interactive shell.
 .B COLUMNS
 Sets the number of columns \fBdpkg\fP should use when displaying formatted
 text. Currently only used by \-l.
+.TP
+.B DPKG_FRONTEND_LOCKED
+Set by a package manager frontend to notify dpkg that it should not acquire
+the frontend lock (since dpkg 1.19.1).
 .SS Internal environment
 .TP
 .B DPKG_SHELL_REASON

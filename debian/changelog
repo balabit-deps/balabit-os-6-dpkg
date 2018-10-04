@@ -1,3 +1,13 @@
+dpkg (1.18.4ubuntu1.5) xenial; urgency=medium
+
+  * Apply patch from upstream to add frontend locking (LP: #1796081):
+    - Add support for frontend locking. This makes it possible for frontends
+      using this new protocol, to safely lock the dpkg database w/o risk of
+      race conditions with other dpkg instances or frontends supporting the
+      same protocol.
+
+ -- Julian Andres Klode <juliank@ubuntu.com>  Thu, 04 Oct 2018 14:21:49 +0200
+
 dpkg (1.18.4ubuntu1.4) xenial; urgency=medium
 
   * Cherry-pick d01212f2d7e59fc713c66b5d60421ac2296c1463 from 1.18.5:
