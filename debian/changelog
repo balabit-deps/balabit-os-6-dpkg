@@ -1,3 +1,14 @@
+dpkg (1.18.4ubuntu1.7) xenial; urgency=medium
+
+  * Add Zstandard (zstd) decompression support for binary packages
+    (LP: #1764220)
+    - The changes to ./configure and *.in files were cherry-picked from a
+      manual autoreconf run because the package build does not run
+      autoreconf automatically and the full delta from autoreconf
+      was very big.
+
+ -- Balint Reczey <rbalint@ubuntu.com>  Mon, 12 Apr 2021 17:41:27 +0200
+
 dpkg (1.18.4ubuntu1.6) xenial; urgency=medium
 
   * Cherry-pick upstream fixes for trigger loops (LP: #1828639)

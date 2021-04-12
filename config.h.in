@@ -351,6 +351,9 @@
 /* Define to 1 to use liblzma rather than console tool */
 #undef WITH_LIBLZMA
 
+/* Define to 1 to use libzstd rather than console tool */
+#undef WITH_LIBZSTD
+
 /* Define to 1 to compile in SELinux support */
 #undef WITH_SELINUX
 

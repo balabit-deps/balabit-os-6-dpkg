@@ -32,6 +32,9 @@
 #ifdef WITH_ZLIB
 #include <zlib.h>
 #endif
+#ifdef WITH_LIBZSTD
+#include <zstd.h>
+#endif
 #ifdef WITH_LIBLZMA
 #include <lzma.h>
 #endif
@@ -47,7 +50,7 @@
 #include <dpkg/buffer.h>
 #include <dpkg/command.h>
 #include <dpkg/compress.h>
-#if !defined(WITH_ZLIB) || !defined(WITH_LIBLZMA) || !defined(WITH_BZ2)
+#if !defined(WITH_ZLIB) || !defined(WITH_LIBZSTD) || !defined(WITH_LIBLZMA) || !defined(WITH_BZ2)
 #include <dpkg/subproc.h>
 
 static void DPKG_ATTR_SENTINEL
@@ -726,6 +729,87 @@ static const struct compressor compressor_lzma = {
 };
 
 /*
+ * Zstd compressor.
+ */
+
+#define ZSTD		"zstd"
+
+#ifdef WITH_LIBZSTD
+
+static void
+decompress_zstd(int fd_in, int fd_out, const char *desc)
+{
+	size_t const buf_in_size = ZSTD_DStreamInSize();
+	void*  const buf_in = m_malloc(buf_in_size);
+	size_t const buf_out_size = ZSTD_DStreamOutSize();
+	void*  const buf_out = m_malloc(buf_out_size);
+	size_t init_result, just_read, to_read;
+	ZSTD_DStream* const dstream = ZSTD_createDStream();
+	if (dstream == NULL) {
+		ohshit(_("ZSTD_createDStream error creating stream"));
+	}
+
+	init_result = ZSTD_initDStream(dstream);
+	if (ZSTD_isError(init_result)) {
+		ohshit(_("ZSTD_initDStream error : %s"), ZSTD_getErrorName(init_result));
+	}
+	to_read = init_result;
+	while ((just_read = fd_read(fd_in, buf_in, to_read))) {
+		ZSTD_inBuffer input = { buf_in, just_read, 0 };
+		while (input.pos < input.size) {
+			ssize_t actualwrite;
+			ZSTD_outBuffer output = { buf_out, buf_out_size, 0 };
+			to_read = ZSTD_decompressStream(dstream, &output , &input);
+			if (ZSTD_isError(to_read)) {
+				ohshit(_("ZSTD_decompressStream error : %s \n"),
+				       ZSTD_getErrorName(to_read));
+			}
+			actualwrite = fd_write(fd_out, output.dst, output.pos);
+			if (actualwrite != output.pos) {
+				const char *errmsg = strerror(errno);
+				ohshite(_("%s: internal zstd write error: '%s'"), desc, errmsg);
+			}
+			/* possible next frame */
+			if (to_read == 0) {
+				init_result = ZSTD_initDStream(dstream);
+				if (ZSTD_isError(init_result)) {
+					ohshit(_("ZSTD_initDStream error : %s"), ZSTD_getErrorName(init_result));
+				}
+				to_read = init_result;
+			}
+		}
+	}
+
+	ZSTD_freeDStream(dstream);
+	free(buf_in);
+	free(buf_out);
+	if (close(fd_out))
+		ohshite(_("%s: internal zstd write error"), desc);
+}
+
+#else
+static const char *env_zstd[] = {};
+
+static void
+decompress_zstd(int fd_in, int fd_out, const char *desc)
+{
+	fd_fd_filter(fd_in, fd_out, desc, env_zstd, ZSTD, "-dcq", NULL);
+}
+
+#endif
+
+static const struct compressor compressor_zstd = {
+	.name = "zstd",
+	.extension = ".zst",
+        /* zstd commands's default is 3 but the aim is to be closer to xz's
+         * default compression efficiency */
+	.default_level = 19,
+	.fixup_params = fixup_none_params,
+	.compress = NULL,
+	.decompress = decompress_zstd,
+};
+
+/*
  * Generic compressor filter.
  */
 
@@ -735,6 +819,7 @@ static const struct compressor *compressor_array[] = {
 	[COMPRESSOR_TYPE_XZ] = &compressor_xz,
 	[COMPRESSOR_TYPE_BZIP2] = &compressor_bzip2,
 	[COMPRESSOR_TYPE_LZMA] = &compressor_lzma,
+	[COMPRESSOR_TYPE_ZSTD] = &compressor_zstd,
 };
 
 static const struct compressor *

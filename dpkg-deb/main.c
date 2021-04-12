@@ -210,6 +210,10 @@ static void
 set_compress_type(const struct cmdinfo *cip, const char *value)
 {
   compress_params.type = compressor_find_by_name(value);
+  if (compress_params.type == COMPRESSOR_TYPE_ZSTD) {
+    compress_params.type = COMPRESSOR_TYPE_UNKNOWN;
+    badusage(_("only decompression is supported for '%s'!"), value);
+  }
   if (compress_params.type == COMPRESSOR_TYPE_UNKNOWN)
     badusage(_("unknown compression type '%s'!"), value);
   if (compress_params.type == COMPRESSOR_TYPE_LZMA)

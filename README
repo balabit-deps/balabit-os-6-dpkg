@@ -70,6 +70,7 @@ To enable optional functionality or programs, this software might be needed:
 
   zlib (used instead of gzip command-line tool)
   xz's liblzma (used instead of xz command-line tool)
+  libzstd (from libzstd, used instead of zstd command-line tool)
   libbzip2 (used instead of bzip2 command-line tool)
   libselinux
   curses compatible library (needed on --enable-dselect)

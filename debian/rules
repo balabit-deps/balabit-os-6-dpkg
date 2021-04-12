@@ -60,6 +60,7 @@ build-tree/config.status: configure
 		--localstatedir=/var \
 		--with-devlibdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
 		--with-zlib \
+		--with-libzstd \
 		--with-liblzma \
 		--with-bz2
 
